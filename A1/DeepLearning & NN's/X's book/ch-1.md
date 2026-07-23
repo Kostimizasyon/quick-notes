@@ -20,7 +20,7 @@ one final output.
 why do we have the other 4? since the first 3 gauged inputs and came to new conclusions, the new 4 will then ponder on these conclusions and be able to tackle more complex questions
 and coem to a conclusion
 
-!(http://neuralnetworksanddeeplearning.com/images/tikz1.png)
+![img](http://neuralnetworksanddeeplearning.com/images/tikz1.png)
 
 a perceptron is === w * x + b
 
@@ -63,7 +63,7 @@ many heuristics for hidden layers, where some trade off the number of hidden lay
 
 ### Building A Digit Recognizer
 
-!(http://neuralnetworksanddeeplearning.com/images/tikz12.png)
+![img](http://neuralnetworksanddeeplearning.com/images/tikz12.png)
 
 #### Arcitechure
 784 (28*28) input neurons, that have been greyscaled as preprocessing.
