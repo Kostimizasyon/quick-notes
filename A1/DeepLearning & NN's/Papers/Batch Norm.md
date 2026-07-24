@@ -1,4 +1,4 @@
-Published At => 02.03.05 by **Sergey Ioffe** and **Christian Szegedy**
+Published At => 02.03.15 by **Sergey Ioffe** and **Christian Szegedy**
 
 # Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift
 
@@ -59,3 +59,74 @@ the gradient backpropagation
 ![crem-de-la-cop](https://kratzert.github.io/images/bn_backpass/bn_algorithm.PNG)
 
 Even though the joint distribition of x(norm) can change, it is still a lot faster.
+
+### Training and Inference with Batch-Normalized Networks
+
+Batch norm behaves differently during training and inference (deployment / evaluation) becacuse during training Batch Norm is done for every mini batch meaning their mean
+and variance are calculated fresh from each batch while great in training, this has 2 major flaws in inference:
+
+1. Size = 1 Issue
+
+In some applications of NNs, the input might come one frame at a time and we cant really normalize that
+
+2. Non Deterministic Outputs
+
+If inference depended on batch norm, the outputs would randomly chnage based on which batch has been chosen, making it non deterministic.
+
+#### The solution:
+
+To make the layer deterministic, E[x] and Var[x] are converted to fixed numbers during inference, and these constants are derived from training by taking the 
+average of all batch means and variances.
+
+Where we then use the formula:
+X(norm) = X - E[X] / sqrt(Var[X] + Epsilon
+
+### Batch-Normalized Convolutional Net-works
+
+z = g(Wu + b), We add the BN right before the non-linearity by normalizing x = Wu + b. And since we normalize Wu + b, taking a mean would render the "+b" part useless, so with BN we can
+ignore the bias completely, making our z = g(BN(Wu)) where BN is applied to each dimension of x = Wu seperatly with seperate gamma and beta variables learned for each dimension.
+
+> [!IMPORTANT]
+> dont relaly get this part ngl
+
+For convoliton layers, we have a problem : instead of each neuron giving a single activation, but in a conv layer each feature map (channel), produces a whole grid of activations: p x q how do we normalize?
+
+Treat the whole feature map as one thing. m(norm) = m * p * q ( m = all exmaples in batch )
+
+### Batch-Normalization enables Higher Learning Rates
+
+In nn's a too high LR makes some gradients explode and others to vanish, batch norm helps this as it is normalizing activations it helps the NN become resilient to too high and low gradients 
+Batch norm stabilizes the parameter growth. We actually dont know what exactly it does on gradient propogation, but its positive.
+
+### Batch-Normalization regularizes the model
+
+Dropout where it is used to reduce overfitting, in a batch normalized framework it can either be removed entirely or reduced.
+
+## Experiments
+
+### Activations over Time
+
+Batch norm helps the usual 28x28 handwritten digit recognition to slightly improve its loss, but the bigger impact being that it helps the model iron out the first errors of distribiton of activations
+a lot faster in a lot fewer steps, which might just be the reason for the loss improvement.
+Where it also helps the model have less swingy outputs leading to better neuron activations.
+
+### ImageNet Classification
+
+It better with bathc nor but we gotta do:
+
+1. Increase LR
+2. Remove dropout
+3. Reduce L2 weight reg
+4. Accelerate learning rate decay
+5. Remove Local Response Norm
+6. Shuffle training more thorougly
+7. Reduce photometric distortions
+
+## Conclusion
+
+It good and only adds 2 extra params.
+
+
+## Related:
+
+[Batch Renormalization](https://github.com/Kostimizasyon/quick-notes/blob/master/A1/DeepLearning%20%26%20NN's/Papers/Batchrenormalization.md)
