@@ -199,7 +199,8 @@ dropout is active or not, so at evaluation time (`model.eval()`) dropout can sim
 ```python
 loss = normal_loss + (λ/2) * sum(w²)
 ```
-Large weights let a model fit training data — including its noise — very precisely; penalizing their magnitude pushes the model toward smaller, smoother weights that tend to generalize better. `λ` (the `weight_decay` argument) controls the strength: too high and the model can't even fit the training data well (underfitting); too low and it does nothing.
+Large weights let a model fit training data — including its noise — very precisely; penalizing their magnitude pushes the model toward smaller, smoother weights that tend to generalize 
+better. `λ` (the `weight_decay` argument) controls the strength: too high and the model can't even fit the training data well (underfitting); too low and it does nothing.
 
 # 7. Loss, Overfitting & Underfitting
 
