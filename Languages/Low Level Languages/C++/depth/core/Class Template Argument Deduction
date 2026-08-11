@@ -1,0 +1,13 @@
+CTAD
+
+Since C++17 constructors can deduce the templates parameters types allowing us to do things such as:
+
+```cpp
+
+std::vector<int> v{0,1,2}; // instead we can do
+
+std::vector v{0, 1, 2}; // the compile can just deduce the type itself
+
+std::array a{1,2,3}; // compiler will just look at tihs and go oh its a std::array<int, 3>
+
+```
