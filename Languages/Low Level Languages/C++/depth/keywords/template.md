@@ -40,6 +40,18 @@ T mymax(T a, T b) {
     return b < a ? b : a;
 }
 
+// we can also use the require infront of auto OR as a bool value
+
+concept HasPushBack = rqeuires (Coll c, Coll::value_type v) {c.push_back(v);}; 
+
+void push_back(HasPushBack auto const& a, const auto& val) {
+
+    auto b = // some value
+    if constexpr ( requires { b.push_back(val) }) {}
+
+    
+} 
+
 ```
 
 
