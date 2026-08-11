@@ -20,8 +20,12 @@ Templates are macros that write code in runtime/compiletime essentially, they wi
 string call is never made for Print it wont be made. Essentially rust macros derive kinda.
 
 In c++20 we can also use the requires keyword to implicitly require the type given to have spesific attributes
+We can group these with the concept keyword to define speesific requirements aswell
 
 ```cpp
+
+template<typename T>
+concept SupportsLessThan = requires (T x) { x < x; }
 
 template<typename T>
 requires std::copyable<T> && SupportsLessThan<T>
