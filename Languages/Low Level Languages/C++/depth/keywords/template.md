@@ -14,6 +14,13 @@ int main() {
     return 0;
 }
 
+// also
+
+template<typenamei... Types)
+void print(Types... args) {
+
+}
+
 ```
 
 Templates are macros that write code in runtime/compiletime essentially, they will only create a function as its used, if a 
