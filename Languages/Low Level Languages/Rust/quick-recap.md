@@ -3,7 +3,6 @@
 ## WEIRD RUST SYNTAX & FEATURES
 
 ```rust
-
 // NO () FOR BOOLEAN EXPRESSIONS
 if a == 5 {}
 
@@ -12,7 +11,6 @@ let a : i32 = 0;
 
 // CONSTRUCTING TYPES & CALLING CONSTRUCTOR
 let b = String::new();
-
 ```
 
 ## CLI Tools
@@ -96,12 +94,12 @@ vec.push(item);
  
 ##### slices => a slice into a memory block via a pointer and a range
 ```rust
-let vec = vec![3;5];
-let str = String::from("Hello");
-let slice_vec = &vec[1..=2]; // slice into vec starting from 1 including 2
-let slice_str = &str[0..2];  // slice of str starting from 0 until 2
-let str_slice: &[&str] = &["one", "two", "three"]; // coercing an array to a slice
-for s in str_slice {} // they are iterable
+    let vec = vec![3;5];
+    let str = String::from("Hello");
+    let slice_vec = &vec[1..=2]; // slice into vec starting from 1 including 2
+    let slice_str = &str[0..2];  // slice of str starting from 0 until 2
+    let str_slice: &[&str] = &["one", "two", "three"]; // coercing an array to a slice
+    for s in str_slice {} // they are iterable
 ```
 
 #### Pointers
@@ -131,7 +129,7 @@ let b = *boxed_a;
 
 ##### RefCells
 
-#### Exception Handling
+#### Exception Handling & Enums Kinda
 In rust we exception handle via types
 
 ##### Option std::optional<T>
@@ -192,6 +190,33 @@ let new_val = strval.clone(); // copied!
 ```
  
 ## Lifetimes
+
+You know what a lifetime is.
+
+### Parameter Lifetimes
+
+Lets say we get references to a few params in our function, we need to guarentee rust that they all have to live in unison, and wont go out of scope while it is being executed. 
+
+```rust
+
+fn print<'a>(x: &a' x : i32) {}
+
+```
+
+This also allows returning references, as we need to make sure that the params given are able to live as long as the return.
+
+```rust
+fn main() {
+    let n = Number { value: 47 };
+    let v = number_value(&n);
+    // `v` borrows `n` (immutably), thus: `v` cannot outlive `n`.
+    // While `v` exists, `n` cannot be mutably borrowed, mutated, moved, etc.
+}
+```
+
+( when there is a single param, we dont need to implicitly say its lifetime )
+
+'static lifetime means it lives as long as the program does.
 
 ## "OOP"
 
@@ -289,6 +314,74 @@ fn test(hello : Option<bool>) {
 
  let hello = hello.unwrap_or(false);
 
+}
+```
+
+## ASYNC RUST
+
+Unlike other languages, async runtimes arent built into rust, we use tokio our lord and savior. Rust async functions return a feature, much like a promise in js, but unlike
+the "eager" type async of javascript, in rust async functions are "lazy" and return a Future, where the feature isnt ran UNLESS explicity being told to do.
+
+### Tasks
+
+A task is a feature that has been handed to an async runtime, and is being asked to work.
+
+### Tokio Introduction
+
+```rust
+
+async fn hello_world() {
+    println!("Hello world!");
+} //returns a feature
+
+#[tokio::main] // creates a thread pool, and creates the Root Task, The root task runs on a random thread.
+async fn main() {
+    hello_world().await; // wait for the result, pass the function TO the Root task, pause the current task
+    // or
+    tokio::spawn(hello_word()); // Create and spawn an entirely new task, that will be put in a task queue then run on a random EMPTY thread
+    // we wont get any returns, we will not know what happens to the task ( Fire and Forget ) 
+
+    // What if we want to run multiple tasks at once?
+    let (config, db) = tokio::join!( // join actually kind of runst like await, as it will ALSO run on the root task and return values
+        load_config(),               // however unlike await, it is interleaving (where as await is sequential) (join runs concurrently)
+        connect_to_db(),
+    );
+
+    tokio::select!( // races Features, if user isnt fethched within 5 seconds, kill the fetch entirely, and only execute the other one. In races who ever loses is fucking kileed (other than that works like join)
+        
+        user = fetch_user() => {}
+
+        _ = sleep(Duration::from_secs(5)) => {} // the most important thing to do is make sure that our code is cancel safe, aka if it cancels midway, this function
+                                                // should handle any other cases (for example, a TCP connection could get cut halfway if the sleep wins, then sleep should kill the connection)
+
+    );
+}
+
+```
+
+### Interoperations between async and sync in Tokio
+
+```rust
+
+#[tokio::main]
+async fn main() {
+
+    let a = heavy_cpu_usage();
+    let b = heavy_cpu_usage();
+
+    let (_a, _b ) = tokio::join!(a, b);
+}
+
+// Here, this CPU heavy task will hoard the Root Thread, and block the async runtime until it is finished itself, causing us to wait for it, disallowing our runtime to schedule other tasks concurrently
+fn gointo_heavy_cpu_usage() {
+    let result = heavy_cpu_using_fn();
+}
+
+// Instead we should use:::
+fn heavy_cpu_usage() {
+    let result = tokio::task::spawn_blocking(move || heavy_cpu_using_fn())).await?; // what this does is, root thread will hand off the cpu heavy func to another thread and use that for calcs instead
+                                                                                    // then it will actually free itself from its current thread, and run the other tasks. When the blocking task finished, our
+                                                                                    // root task resumes on any available thread.
 }
 ```
 

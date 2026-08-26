@@ -14,3 +14,19 @@ Scope stuff you know the drill
 ## Heap
 
 Slower as requires a lot more cpu tasks
+
+ 0x0000000000000000
+  |    Heap (Unlimited? (limited by virtual memory))
+  |      Slow, pointer indirections, cache misses?
+  |      "new" variables
+  v
+
+ Unused
+
+  ^
+  |
+  |    Stack (Limited)
+  |      Fast, known location
+  |      "local" variables
+  |
+ 0xFFFFFFFFFFFFFFFF
