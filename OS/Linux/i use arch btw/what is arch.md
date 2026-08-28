@@ -1,7 +1,7 @@
 # Arch
 
-Arch is a linux distro that is all about minumum bloatware and being up to date, everytime arch is updated
-the os will update itself in the background, always being up to date. Alongside the fact that it ships with
+Arch is a linux distro that is all about minumum bloatware and is a rolling release distro, its updated every
+month, everytime arch is updated the os will update itself in the background, always being up to date. Alongside the fact that it ships with
 almost no bloatware, and letting the user handle everything themselves. It is notoriously complex and memed
 to oblivion. 
 
