@@ -23,6 +23,10 @@ ends, essentially allocing memory. go ```+1G```, which means go untill you alloc
 
 Same above, also 1GB
 
+67. Swap
+
+4* gigs as above
+
 3. Root
 
 Same above but just default to use the rest of the drive.
@@ -61,6 +65,10 @@ Go ```lsblk``` to view your partitions, then go ```mkfs.fat -F32 path_to_partiti
 2. Partion 2 (Boot)
 
     ```mkfs.ext4 path_to_partition2```
+
+67. Swap
+
+    ```mkswap path_to_partition```
 
 3. Partion 3 LVM
 
@@ -129,3 +137,4 @@ Now we wanna mount the boot partition
 Now we mount our home
 ```mount /dev/volgroup0/lv_home /mnt/home```
 
+```swapon patH_to_swap```

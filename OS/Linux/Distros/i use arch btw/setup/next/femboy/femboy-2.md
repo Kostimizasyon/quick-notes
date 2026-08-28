@@ -1,12 +1,19 @@
 assume /mnt as the mounted rootdir
 
+# Setting up mirrors
+
+```less /etc/pacman.d/mirrorlist``` to view the list of mirrors
+```reflector --help```
+
+Only the mirror list gets carried over
+
 # now that we actually partioned our disk and mounted our LVM's and Bios, we can install some packages
 
 ## In this step, we actually dont use pacman and we use pacstrap, which is designed for fresh unbooted systems, we use it here and never again
 
 Installs base packages
 ```
-pacstrap -i mnt base # -i for interactive mode, it asks for confirmation to install packages
+pacstrap -K -i /mnt base intel-ucode linux-firmware # -i for interactive mode, it asks for confirmation to install packages # -K
 ```
 
 Base, a package group for arch's installation:
@@ -21,6 +28,9 @@ Base, a package group for arch's installation:
 - iproute2  :: basic networking toosl
 - licenses  :: license files for the packages
 - vi
+
+- intel-ucode:: microcode updates & drivers for intel cpu's
+- linux-firmware :: hardware drivers for linux
 
 ## Next, we need the fstabfile for our system
 
@@ -51,7 +61,7 @@ Wheel => unix standard for power users
 
 ## Now we need some more basic packages
 
-```pacman -S base-devel dosfstools grub efibootmgr lvm2 mtools nano networkmanager os-prober sudo openssh gnomg```
+```pacman -S base-devel dosfstools grub efibootmgr lvm2 mtools nano networkmanager os-prober sudo openssh git man-db man-pages```
 
 - base-devel :: package group with compilers/build tools gcc, make etc
 - dosfstools :: tools for FAT filesystems
@@ -64,7 +74,10 @@ Wheel => unix standard for power users
 - networkmanager :: handles wifi&ethernet connections provides nmcli&nmtui, needed for internet after reboot
 - sudo       :: regular user commands
 - openssh    :: SSH client + server
-- gnome      :: a desktop/window manager
+- git        :: you already know
+- man-db     :: acess to linux manuals
+- man-pages  :: acess to linux manuals
+- reflactor  :: relfactor for mirror setups
 
 ( unsure if included or not )
 
@@ -120,9 +133,19 @@ They are executed in order so the initramfs knows to decrypt before trying to op
 
 ## Generating kernel ram disks (initramfs) (required for boot)
 
-Then run ```mkinitcpio -p linux``` and ```mkinitcpio -p linux-lts``` there ya go
+Run ```mkinitcpio -p linux``` and ```mkinitcpio -p linux-lts``` there ya go
 
 -p = Preset
+
+## Timezones
+
+```
+ln -sf /usr/share/zoneinfo/
+
+ln -sf /usr/share/zoneinfo/Area/location /etc/localtime
+
+hwclock --systohc
+```
 
 ## Setting up locales
 
@@ -152,7 +175,7 @@ Now we will install grub itself, (required to be bootable)
 ```grub-mkconfig -o /boot/grub/grub.cfg```
 
 ## A few things to enable to make sure it works
-```systemctl enable gdm``` gnome login page
+```systemctl enable hyprland```
 
 ```systemctl enable NetworkManager```
 
@@ -160,6 +183,7 @@ Now we will install grub itself, (required to be bootable)
 
 Go ```exit``` to go back to our iso root
 Then go ```umount -a``` errors is fine
+Remove usb
 Then we go ```reboot```
 
-There you go! Your arch is setup!
+There you go! You can now boot out!

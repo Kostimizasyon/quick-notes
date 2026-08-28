@@ -35,3 +35,18 @@ constexpr auto get_result(int param) {
 
 
 ```
+
+## consteval block C++26
+
+A block marked consteval for the compiler.
+
+```cpp
+
+constexpr auto add(int x, int y) -> int {}
+
+consteval { // forced to run in consteval
+    int hello = add(1,2);
+    // everything inside has to be constevalable
+}
+
+```

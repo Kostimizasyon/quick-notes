@@ -4,9 +4,20 @@
 
 3. Select arch from boot options, do memtest for safety first.
 
+# optional pre startup
+
+we can setup our keymap & fonts of our terminal
+
+```localectl list-keymaps```, then ```loadkeys x```
+
+Console fonts are locatedf in /usr/share/kbd/consolefonts/, and can be set with ```setfont x```
+
 # Starting Up
 
-First ensure you have an internet connection either via ethernet or wifi.
+First you should probably check if you have the correct boot via ```cat /sys/firmware/efi/fw_platform_size```, if it returns "No such file or directory",
+you probably booted in with bios or something
+
+Then lets ensure you have an internet connection either via ethernet or wifi.
 
 Ethernet just go run ```ip addr list``` if u get an ip u got connection or just ```ping -c 5 8.8.8.8```
 
@@ -28,3 +39,6 @@ using ```ssh root@ip_adress```
 
 THIS SSH WILL ALSO CLOSE AFTER WE FINISH THE SETUP AND THE USB GOES DEAD
 
+## Updating / checking system clock
+
+```timedatectl``` Ensuring that our system clock is synced ```timedatectl status```
