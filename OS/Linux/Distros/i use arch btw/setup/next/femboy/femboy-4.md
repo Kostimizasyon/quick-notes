@@ -1,0 +1,3 @@
+# ricing waybar & hyprpaper
+
+

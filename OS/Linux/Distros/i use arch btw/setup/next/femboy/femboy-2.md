@@ -1,5 +1,3 @@
-assume /mnt as the mounted rootdir
-
 # Setting up mirrors
 
 ```less /etc/pacman.d/mirrorlist``` to view the list of mirrors
@@ -13,7 +11,7 @@ Only the mirror list gets carried over
 
 Installs base packages
 ```
-pacstrap -K -i /mnt base intel-ucode linux-firmware # -i for interactive mode, it asks for confirmation to install packages # -K
+pacstrap -K -i /mnt base intel-ucode linux-firmware # -i for interactive mode, it asks for confirmation to install packages 
 ```
 
 Base, a package group for arch's installation:
@@ -81,6 +79,8 @@ Wheel => unix standard for power users
 
 ( unsure if included or not )
 
+```pacman -S pipewire pipewire-pulse pipewire-jack pipewire-alsa wireplumber```
+
 - pipewire   :: core audio & video server
 - pipewire-pulse :: pulse audio compatability layer
 - pipewire-jack / pipewire-alsa  :: compatability shims for jack/alsa apps
@@ -139,6 +139,8 @@ Run ```mkinitcpio -p linux``` and ```mkinitcpio -p linux-lts``` there ya go
 
 ## Timezones
 
+Study more
+
 ```
 ln -sf /usr/share/zoneinfo/
 
@@ -158,7 +160,7 @@ Afterward, we set our system defualt in /etc/locale.conf
 
 Grub is a bootloader for our system
 
-```echo "rd.luks.name=$(blkid -s UUID -o value path_to_3rdpartition)=lvm"```
+    ```echo "rd.luks.name=$(blkid -s UUID -o value path_to_rootpartiton)=lvm"```
 
 Copy this info, we need it to upgrade the boot config file for grub
 
@@ -175,8 +177,6 @@ Now we will install grub itself, (required to be bootable)
 ```grub-mkconfig -o /boot/grub/grub.cfg```
 
 ## A few things to enable to make sure it works
-```systemctl enable hyprland```
-
 ```systemctl enable NetworkManager```
 
 ## Now we actually are basically done

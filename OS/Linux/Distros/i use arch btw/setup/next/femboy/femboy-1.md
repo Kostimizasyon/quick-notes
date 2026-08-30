@@ -1,12 +1,14 @@
 # If you are a chad / femboy, you can manually install.
 
+```ls /sys/firmware/efi``` to make sure you are booted into EFI
+
 ## First WE gotta partion our disk
 
 Type in ```lsbkl``` view the disks in the computer, and target the accurate disk to partition.
 
-Then, you gotta go ```fdisk path_to_disk```
+Then, you gotta go ```fdisk dev/disk_name```
 
-Then we will partition our disk into 3:
+Then we will partition our disk into 4:
 
 *You can go ```p``` to view partition layout* 
 
@@ -33,10 +35,12 @@ Same above but just default to use the rest of the drive.
 
 **There you go! You sucesfully partitioned your drive! go ```p``` to view your partitions** 
 
-Next go ```w``` to confirm and exit the fdisk process.
-
 > [!WARNING]
 > THIS WILL WIPE YOUR DRIVE
+
+Change the type of the 4th partition with ```t``` then ```23```
+
+Next go ```w``` to confirm and exit the fdisk process.
 
 ## Formatting our Partitions
 
@@ -115,7 +119,7 @@ Search for volume groups in the disk
 ```vgscan```
 
 Activate all volume groups activate yes, makes the LV's available
-```vg change -ay```
+```vgchange -ay```
 
 ### Formatting Logical Volumes
 Same formatting, just applied to LV's instead.
