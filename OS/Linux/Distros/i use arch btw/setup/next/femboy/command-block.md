@@ -6,14 +6,11 @@ lsblk
 fdisk `disk`  
 (
 g
+n EFI  
 n 
-n
-n
+n SWAP
+n x86_64
 p
-
-t
-4
-23
 
 w
 )
@@ -22,10 +19,10 @@ cryptsetup luksFormat p4
 cryptsetup open --type luks p4 lvm
 
 pvcreate /dev/mapper/lvm
-vgcreate volgroup0 /dev/mapper/lvm
+vgcreate vg0 /dev/mapper/lvm
 
-lvcreate -L 30G volgroup0 -n lv_root
-lvcreate -L 800G volgroup0 -n lv_home
+lvcreate -L 30G vg0 -n lv_root
+lvcreate -L 800G vg0 -n lv_home
 
 modprobe dm_mod
 vgscan
@@ -34,16 +31,16 @@ vgchange -ay
 mkfs.fat -F32 p1
 mkfs.ext4 p2
 mkswap p3
-mkfs.ext4 /dev/volgroup0/lv_root
-mkfs.ext4 /dev/volgroup0/lv_home
+mkfs.ext4 /dev/vg0/lv_root
+mkfs.ext4 /dev/vg0/lv_home
 
-mount /dev/volgroup0/lv_root /mnt
+mount /dev/vg0/lv_root /mnt
 
 mkdir /mnt/boot
 mount p2 /mnt/boot
 
 mkdir /mnt/home
-mount /dev/volgroup0/lv_home /mnt/home
+mount /dev/vg0/lv_home /mnt/home
 
 swapon p3
 ```
@@ -67,33 +64,33 @@ passwd
 
 useradd -m -g users -G wheel username
 
-visudo
-
 passwd username
 
 pacman -S base-devel dosfstools grub efibootmgr lvm2 mtools nano networkmanager os-prober sudo openssh git man-db man-pages
 
-pacman -S pipewire pipewire-pulse pipewire-jack wireplumber
-
 systemctl enable sshd
+
+visudo
+
+pacman -S pipewire pipewire-pulse pipewire-jack wireplumber pipewire-alsa
 
 pacman -S linux linux-headers linux-lts linux-lts-headers
 
 pacman -S nvidia-open nvidia-utils reflector
 
-nano /etc/mkinitcpio.conf
+nano /etc/mkinitcpio.conf # find first uncommmented hooks, sd-encrypt lvm2 between block and file
 
 mkinitcpio -p linux
 mkinitcpio -p linux-lts
 
-ln -sf /usr/share/zoneinfo/Area/Location /etc/localtime
+timedatectl set-timezone Europe/Istanbul
 hwclock --systohc
 
 nano /etc/locale.gen 
 locale-gen
 
 echo "rd.luks.name=$(blkid -s UUID -o value path_to_rootpartiton)=lvm"
-nano /etc/default/grub #*add the thing above to CMDLINE_LINUX root=path_to_root
+nano /etc/default/grub #*add the thing above to CMDLINE_LINUX root=path_to_lv_root
 
 mkdir /boot/EFI
 mountp p1 /boot/EFI
@@ -104,24 +101,44 @@ grub-mkconfig -o /boot/grub/grub.cfg
 
 systemctl enable NetworkManager
 
+pacman -S ly
+systemctl enable ly@tty2
+
 exit
 umount -a
+
+# you can unplug usb
+
 reboot
 ```
 
-```
-nmcli device wifi connect name
+ssh-keygen -R 192.168.1.116
 
-pacman -S bluez bluez-utils bluez-deprecated-tools
+```
+nmcli device wifi connect "name" password "password"
+
+sudo pacman -S vlc vlc-plugins-extra
+
+sudo pacman -S bluez bluez-utils bluez-deprecated-tools blueman
+
 modinfo btusb
 
-systemctl start bluetooth.service
+sudo systemctl start bluetooth.service
+
+# check lsblk --discard
+sudo systemctl enable --now fstrim.timer
+
+timedatectl set-ntp true
 ```
 
 ```
-sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si
+sudo pacman -S flatpak
 
-pacman -S hyprland kitty waybar hyprpaper firefox  rofi-hyperland dunst hyprshot xdg-desktop-portal-hyprland polkit-kde-agent qt5-wayland qt6-wayland
+sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+# sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si
+
+sudo pacman -S hyprland kitty waybar hyprpaper firefox dunst hyprshot xdg-desktop-portal-hyprland polkit-kde-agent qt5-wayland qt6-wayland rofi
 
 sudo pacman -S ttf-mononoki-nerd
 
@@ -129,12 +146,10 @@ fc-cache -fv
 
 fc-list | grep -i mononoki
 
-pacman -S lv
-systemctl enable lv@tty2
+sudo pacman -S ghostty tmux fastfetch
+yay -S zen-browser
 
-pacman -S zen ghostty tmux
-
-reboot
+sudo reboot
 
 cd ~/.config/hypr
 
@@ -147,6 +162,17 @@ echo "{
     }"
 > .luarc.json
 
+sudo pacman -S ripgrep fd unzip gcc make
+
+sudo pacman -S rust pnpm npm go nodejs python python-pip typescript
+
+cargo install --locked tree-sitter-cli
+
+# setup env variable via ~/.bashrc # export PATH=$PATH:path
+
+sudo pacman -S nvim # clone from git aswell
+# need to setup treesitter etc all the defaults for fuckin kickstarter
+
 nvim hyprland.lua (
 
 / programs
@@ -156,6 +182,7 @@ local menu = "rofi"
 local browser = "zen"
 local neovim = "nvim"
 local appMenu = "rofi -show drun -show-icons"
+local runner  = "rofie -show run"
 local config = "root_to_hyprland_conf"
 
 / bind
@@ -218,9 +245,43 @@ hl.env("QT_QPA_PLATFORMTHEME", "qt6ct")
 reboot
 
 qt6ct
+
+command shift c (
+
+    /autostart
+
+hl.exec_cmd("hyprctl setcursor Bibata-Classic-Ice 30") # replace cursor sizes after
+
+"/usr/lib/polkit-kde-authentication-agent-1"
+
+)
 ```
 
 ```
+
+nvim .config/hypr/hyprpaper.conf (
+
+wallpaper {
+    monitor = DP-1
+    path =  # find a wallpaper   
+    fit_mode = cover  # can be fill cover tile 
+    timout = 30       # time till image change
+    order = random    # order of displaying images from dir
+    recursive = false # whetehr or not to recursively search if given path is a dir
+}
+
+
+wallpaper {
+    monitor = DP-2
+    path = # find a wallpaper
+    fit_mode = cover  # can be fill cover tile 
+    timout = 30       # time till image change
+    order = random    # order of displaying images from dir
+    recursive = false # whetehr or not to recursively search if given path is a dir
+}
+
+)
+
 cd .config/hypr
 
 mkdir .config/waybar
@@ -233,12 +294,7 @@ nvim config.jsonc (
 
 mkdir syle.css # get the default from the repo, change fonts to "monoki Nerd font"
 
-command shift c (
-    /autostart
+command shift c => add hyperpaper to auto boot
 
-hl.exec_cmd("hyprctl setcursor Bibata-Classic-Ice 30") # replace cursor sizes after
-
-"/usr/lib/polkit-kde-authentication-agent-1"
-
-)
 ```
+
