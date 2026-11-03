@@ -13,3 +13,5 @@ errorno and a newline.
 
 The global error list `sys_errlist[]`, which can be indexed by errno.
 The largest number provided in the table is `sys_nerr`-1
+
+It essentially just add `strerror(errorno)` after the thing you give it.
